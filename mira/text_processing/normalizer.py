@@ -36,11 +36,11 @@ VALID_UNITS = {
     "f": "degree fahrenheit", "k": "kelvin",
     "pa": "pascal", "kpa": "kilopascal", "mpa": "megapascal", "atm": "atmosphere",
     "hz": "hertz", "khz": "kilohertz", "mhz": "megahertz", "ghz": "gigahertz",
-    "v": "volt", "kv": "kilovolt", "mv": "megavolt",
-    "a": "amp", "ma": "megaamp", "ka": "kiloamp",
+    "v": "volt", "kv": "kilovolt", "mv": "millivolt",
+    "a": "amp", "ma": "milliamp", "ka": "kiloamp",
     "w": "watt", "kw": "kilowatt", "mw": "megawatt",
     "j": "joule", "kj": "kilojoule", "mj": "megajoule",
-    "Ω": "ohm", "kΩ": "kiloohm", "mΩ": "megaohm",
+    "Ω": "ohm", "kΩ": "kiloohm", "mΩ": "milliohm",
     "f": "farad", "µf": "microfarad", "nf": "nanofarad", "pf": "picofarad",
     "b": "bit", "kb": "kilobit", "mb": "megabit", "gb": "gigabit",
     "tb": "terabit", "pb": "petabit",
@@ -117,9 +117,10 @@ def handle_units(u: re.Match[str]) -> str:
     if unit_string.lower() in VALID_UNITS:
         unit = VALID_UNITS[unit_string.lower()].split(" ")
 
-        # Handles the B vs b case
+        # Handles the B vs b case (bit vs byte)
         if unit[0].endswith("bit"):
-            b_case = unit_string[min(1, len(unit_string) - 1)]
+            # Get the last character of the original unit string
+            b_case = unit_string[-1] if len(unit_string) > 0 else 'b'
             if b_case == "B":
                 unit[0] = unit[0][:-3] + "byte"
 
@@ -215,7 +216,7 @@ def handle_money(m: re.Match[str]) -> str:
 def handle_decimal(num: re.Match[str]) -> str:
     """Convert decimal numbers to spoken form"""
     a, b = num.group().split(".")
-    return " point ".join([a, " ".join(b)])
+    return a + " point " + " ".join(b)
 
 
 def handle_email(m: re.Match[str]) -> str:
