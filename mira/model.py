@@ -5,6 +5,7 @@ from ncodec.codec import TTSCodec
 from lmdeploy import pipeline, GenerationConfig, TurbomindEngineConfig
 
 from mira.utils import clear_cache, split_text
+from mira.text_processing import normalize_text, NormalizationOptions
 
 class MiraTTS:
 
@@ -29,8 +30,19 @@ class MiraTTS:
     def c_cache(self):
         clear_cache()
 
-    def split_text(self, text):
-        return split_text(text)
+    def split_text(self, text, normalize=True, normalization_options=None):
+        """
+        Split text into sentences with optional normalization.
+        
+        Args:
+            text: Input text to split
+            normalize: Whether to normalize text before splitting
+            normalization_options: NormalizationOptions instance for customizing normalization
+            
+        Returns:
+            List of sentence strings
+        """
+        return split_text(text, normalize=normalize, normalization_options=normalization_options)
         
     def encode_audio(self, audio_file):
         """encodes audio into context tokens"""
@@ -39,22 +51,50 @@ class MiraTTS:
         return context_tokens
 
         
-    def generate(self, text, context_tokens):
-        """generates speech from input text"""
+    def generate(self, text, context_tokens, normalize=True, normalization_options=None):
+        """
+        Generates speech from input text.
+        
+        Args:
+            text: Input text to generate speech from
+            context_tokens: Encoded audio context tokens
+            normalize: Whether to normalize text before generating
+            normalization_options: NormalizationOptions instance for customizing normalization
+            
+        Returns:
+            Generated audio tensor
+        """
+        # Normalize text if requested
+        if normalize:
+            if normalization_options is None:
+                normalization_options = NormalizationOptions()
+            text = normalize_text(text, normalization_options)
+        
         formatted_prompt = self.codec.format_prompt(text, context_tokens, None)
       
         response = self.pipe([formatted_prompt], gen_config=self.gen_config, do_preprocess=False)
         audio = self.codec.decode(response[0].text, context_tokens)
         return audio
       
-    def batch_generate(self, prompts, context_tokens):
+    def batch_generate(self, prompts, context_tokens, normalize=True, normalization_options=None):
         """
-        Generates speech from text, for larger batch size
+        Generates speech from text, for larger batch size.
 
         Args:
-            prompt (list): Input for tts model, list of prompts
-            voice (list): Description of voice, list of voices respective to prompt
+            prompts (list): Input for tts model, list of prompts
+            context_tokens (list): List of context tokens respective to prompts
+            normalize: Whether to normalize text before generating
+            normalization_options: NormalizationOptions instance for customizing normalization
+            
+        Returns:
+            Concatenated audio tensor
         """
+        # Normalize prompts if requested
+        if normalize:
+            if normalization_options is None:
+                normalization_options = NormalizationOptions()
+            prompts = [normalize_text(prompt, normalization_options) for prompt in prompts]
+        
         formatted_prompts = []
         for prompt, context_token in zip(prompts, cycle(context_tokens)):
             formatted_prompt = self.codec.format_prompt(prompt, context_token, None)
