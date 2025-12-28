@@ -33,7 +33,7 @@ VALID_UNITS = {
     "m/s": "meter per second", "km/h": "kilometer per hour", "mm/s": "millimeter per second",
     "cm/s": "centimeter per second", "ft/s": "feet per second", "cm/h": "centimeter per hour",
     "°c": "degree celsius", "c": "degree celsius", "°f": "degree fahrenheit",
-    "f": "degree fahrenheit", "k": "kelvin",
+    "k": "kelvin",
     "pa": "pascal", "kpa": "kilopascal", "mpa": "megapascal", "atm": "atmosphere",
     "hz": "hertz", "khz": "kilohertz", "mhz": "megahertz", "ghz": "gigahertz",
     "v": "volt", "kv": "kilovolt", "mv": "millivolt",
@@ -124,9 +124,14 @@ def handle_units(u: re.Match[str]) -> str:
             if b_case == "B":
                 unit[0] = unit[0][:-3] + "byte"
 
-        number = u.group(1).strip()
-        unit[0] = INFLECT_ENGINE.no(unit[0], number)
-    return " ".join(unit)
+        number_str = u.group(1).strip()
+        try:
+            number = float(number_str)
+            unit[0] = INFLECT_ENGINE.plural(unit[0], count=number)
+        except (ValueError, TypeError):
+            # If number can't be parsed, leave unit as-is
+            pass
+    return " ".join(unit) if isinstance(unit, list) else unit
 
 
 def conditional_int(number: float, threshold: float = 0.00001):
