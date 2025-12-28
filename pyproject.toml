@@ -22,7 +22,8 @@ dependencies = [
     "fastaudiosr @ git+https://github.com/ysharma3501/FlashSR.git",
     "ncodec @ git+https://github.com/ysharma3501/FastBiCodec.git",
     "einops",
-    "onnxruntime-gpu"
+    "onnxruntime-gpu",
+    "inflect",
 ]
 
 [project.urls]

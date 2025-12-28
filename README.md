@@ -9,6 +9,7 @@ https://github.com/user-attachments/assets/262088ae-068a-49f2-8ad6-ab32c66dcd17
 - High quality: Generates clear and crisp 48khz audio outputs which is much higher quality then most models.
 - Memory efficient: Works within 6gb vram.
 - Low latency: Latency can be low as 100ms.
+- Advanced text normalization: Automatically handles URLs, emails, phone numbers, money, units, and special characters (inspired by [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI)).
 
 ## Usage
 Simple 1 line installation:
@@ -29,6 +30,47 @@ context_tokens = mira_tts.encode_audio(file)
 audio = mira_tts.generate(text, context_tokens)
 
 Audio(audio, rate=48000)
+```
+
+### Text Normalization
+MiraTTS includes advanced text normalization that automatically handles:
+- URLs (e.g., "https://example.com" → "https example dot com")
+- Emails (e.g., "user@example.com" → "user at example dot com")
+- Phone numbers (e.g., "555-123-4567" → spoken format)
+- Money amounts (e.g., "$50.99" → "fifty dollars and ninety-nine cents")
+- Numbers and units (e.g., "10KB" → "ten kilobytes")
+- Special characters and symbols
+
+By default, text normalization is enabled. To customize or disable it:
+
+```python
+from mira.text_processing import NormalizationOptions
+
+# Disable normalization
+audio = mira_tts.generate(text, context_tokens, normalize=False)
+
+# Customize normalization options
+options = NormalizationOptions(
+    normalize=True,
+    url_normalization=True,
+    email_normalization=True,
+    phone_normalization=True,
+    unit_normalization=False,  # Disable unit conversion
+    replace_remaining_symbols=True
+)
+audio = mira_tts.generate(text, context_tokens, normalization_options=options)
+```
+
+You can also split and normalize text manually:
+```python
+from mira.text_processing import normalize_text, NormalizationOptions
+
+# Normalize text
+normalized = normalize_text("Visit https://example.com for $99!", NormalizationOptions())
+# Returns: "Visit https example dot com for ninety-nine dollars!"
+
+# Split text into sentences with normalization
+sentences = mira_tts.split_text(text, normalize=True)
 ```
 
 Running the model using batching: 
