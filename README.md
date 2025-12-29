@@ -15,7 +15,7 @@ https://github.com/user-attachments/assets/262088ae-068a-49f2-8ad6-ab32c66dcd17
 ## Usage
 Simple 1 line installation:
 ```
-uv pip install git+https://github.com/ysharma3501/MiraTTS.git
+uv pip install git+https://github.com/groxaxo/MiraTTS.git
 ```
 
 Running the model (uses INT4 ONNX model by default):
@@ -123,11 +123,12 @@ Colab notebook: https://colab.research.google.com/drive/1IprDyaMKaZrIvykMfNrxWFe
 MiraTTS now includes a user-friendly Streamlit web interface for easy voice cloning and audio generation!
 
 ### Features
+- **CPU Optimized:** Uses INT4 ONNX model for efficient CPU inference
 - **High Fidelity:** Generates crystal clear 48kHz audio
 - **Zero-Shot Cloning:** Upload a 5-10 second reference clip to clone any voice
 - **Smart Batching:** Uses batch generation to synthesize long text rapidly (up to 100x realtime)
 - **History System:** Automatically saves and displays the last 5 generations
-- **GPU Optimized:** Caches the model in VRAM to prevent reloading on every request
+- **GPU Optional:** Caches the model in VRAM when GPU is available, but runs great on CPU too
 
 ### Running the Web Interface
 After installing MiraTTS, you can launch the Streamlit interface:
@@ -139,10 +140,10 @@ streamlit run app_mira.py
 Then open your browser to `http://localhost:8501` to access the interface.
 
 ### First Run Note
-On the very first launch, the app will download the MiraTTS model weights (~2-3 GB) from Hugging Face. This happens automatically and may take a few minutes depending on your internet speed.
+On the very first launch, the app will download the INT4 ONNX model weights (~1-2 GB) from Hugging Face. This happens automatically and may take a few minutes depending on your internet speed.
 
 ### Prerequisites
-- **Hardware:** NVIDIA GPU with at least 6GB VRAM (required for Lmdeploy/FlashSR)
+- **Hardware:** Any modern CPU (GPU optional for faster processing)
 - **System:** FFmpeg installed (`sudo apt install ffmpeg` on Linux)
 - **Python:** Version 3.10 or higher
 
@@ -154,8 +155,13 @@ On the very first launch, the app will download the MiraTTS model weights (~2-3 
 - [ ] Release native 48khz bicodec
       
 ## Final notes
-Thanks very much to the authors of Spark-TTS and unsloth. Thanks for checking out this repository as well.
+This repository is a CPU-optimized fork of the original [MiraTTS by Yatharth Sharma](https://github.com/ysharma3501/MiraTTS).
 
-Stars would be well appreciated, thank you.
+**Special thanks to:**
+- **[Yatharth Sharma](https://github.com/ysharma3501)** - Original MiraTTS creator and model author
+- **[ArtificialAnaleptic](https://github.com/ArtificialAnaleptic)** - Streamlit frontend implementation  
+- **Spark-TTS Team** - For the excellent base model
+- **[uetuluk2](https://huggingface.co/uetuluk2)** - INT4 ONNX quantization
+- **Unsloth Team** - Optimization contributions
 
-Email: yatharthsharma3501@gmail.com
+Stars would be well appreciated, thank you!
