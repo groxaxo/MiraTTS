@@ -5,7 +5,6 @@ import re
 import glob
 import soundfile as sf
 import numpy as np
-import torch  # Added to handle Tensor operations
 from datetime import datetime
 from mira.model import MiraTTS
 
@@ -177,7 +176,7 @@ with col_main:
                     if hasattr(audio_tensor, 'cpu'):
                         final_audio = audio_tensor.cpu().numpy()
                     else:
-                        final_audio = audio_tensor # Fallback
+                        final_audio = np.asarray(audio_tensor)
                         
                     # 3. Ensure Float32 for SoundFile
                     final_audio = final_audio.astype(np.float32)
