@@ -1,13 +1,14 @@
 # MiraTTS
 [MiraTTS](https://huggingface.co/YatharthS/MiraTTS) is a finetune of the excellent [Spark-TTS](https://huggingface.co/SparkAudio/Spark-TTS-0.5B) model for enhanced realism and stability performing on par with closed source models. 
-This repository also heavily optimizes Mira with [Lmdeploy](https://github.com/InternLM/lmdeploy) and boosts quality by using [FlashSR](https://github.com/ysharma3501/FlashSR) to generate high quality audio at over **100x** realtime!
+This repository uses the **INT4 quantized ONNX model** ([uetuluk2/MiraTTS-onnx-int4](https://huggingface.co/uetuluk2/MiraTTS-onnx-int4)) by default for efficient CPU and GPU inference with **ONNX Runtime**, providing faster performance and lower memory usage while maintaining high quality audio generation.
 
 https://github.com/user-attachments/assets/262088ae-068a-49f2-8ad6-ab32c66dcd17
 
 ## Key benefits
-- Incredibly fast: Over 100x realtime by using Lmdeploy and batching.
+- **Optimized for efficiency**: Uses INT4 quantized ONNX model for 2x faster inference and 15x less memory
+- **CPU-friendly**: Runs efficiently on CPU without requiring high-end GPU
 - High quality: Generates clear and crisp 48khz audio outputs which is much higher quality then most models.
-- Memory efficient: Works within 6gb vram.
+- Memory efficient: Works within 6gb vram (GPU) or efficiently on CPU.
 - Low latency: Latency can be low as 100ms.
 - Advanced text normalization: Automatically handles URLs, emails, phone numbers, money, units, and special characters (inspired by [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI)).
 
@@ -17,11 +18,13 @@ Simple 1 line installation:
 uv pip install git+https://github.com/ysharma3501/MiraTTS.git
 ```
 
-Running the model(bs=1):
+Running the model (uses INT4 ONNX model by default):
 ```python
 from mira.model import MiraTTS
 from IPython.display import Audio
-mira_tts = MiraTTS('YatharthS/MiraTTS') ## downloads model from huggingface
+
+# Downloads INT4 ONNX model from HuggingFace (default: uetuluk2/MiraTTS-onnx-int4)
+mira_tts = MiraTTS()
 
 file = "reference_file.wav" ## can be mp3/wav/ogg or anything that librosa supports
 text = "Alright, so have you ever heard of a little thing named text to speech? Well, it allows you to convert text into speech! I know, that's super cool, isn't it?"
@@ -30,6 +33,24 @@ context_tokens = mira_tts.encode_audio(file)
 audio = mira_tts.generate(text, context_tokens)
 
 Audio(audio, rate=48000)
+```
+
+### Using a Different Model
+
+You can also use other models:
+```python
+# Use the original FP32 model (larger but potentially more accurate)
+mira_tts = MiraTTS('YatharthS/MiraTTS')
+
+# Use a local ONNX model directory
+mira_tts = MiraTTS('./my_local_model')
+```
+
+### GPU Inference
+
+For CUDA GPU acceleration:
+```python
+mira_tts = MiraTTS(device='cuda')
 ```
 
 ### Text Normalization
