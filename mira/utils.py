@@ -33,4 +33,5 @@ def split_text(text, normalize=True, normalization_options=None):
 
 def clear_cache():
     gc.collect()
-    torch.cuda.empty_cache()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
