@@ -49,8 +49,9 @@ def get_mel_transformer():
 class AudioEncoder:
     """Device-aware audio encoder using ONNX Runtime."""
 
-    def __init__(self, decoder_paths: str, device: str = "cuda"):
+    def __init__(self, decoder_paths: str, device: str = "cuda", device_id: int = 0):
         self.device = device
+        self.device_id = device_id
         self._torch_device = self._get_torch_device()
 
         wav2vec2_path = "facebook/wav2vec2-large-xlsr-53"
@@ -82,7 +83,7 @@ class AudioEncoder:
     def _get_providers(self):
         available = ort.get_available_providers()
         if self.device == "cuda" and "CUDAExecutionProvider" in available:
-            return [("CUDAExecutionProvider", {"device_id": 0}), "CPUExecutionProvider"]
+            return [("CUDAExecutionProvider", {"device_id": self.device_id}), "CPUExecutionProvider"]
         return ["CPUExecutionProvider"]
 
     def extract_wav2vec2_features(self, wavs: torch.Tensor) -> torch.Tensor:

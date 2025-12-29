@@ -10,7 +10,7 @@ class MinPLogitsProcessor(LogitsProcessor):
     This helps reduce low-quality samples by removing unlikely tokens.
     """
 
-    def __init__(self, min_p: float = 0.05, filter_value: float = -float("Inf")):
+    def __init__(self, min_p: float = 0.05, filter_value: float = float('-inf')):
         """
         Args:
             min_p: Minimum probability threshold relative to max probability.

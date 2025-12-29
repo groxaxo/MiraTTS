@@ -9,12 +9,13 @@ from mira.encoder import AudioEncoder
 class TTSCodec:
     """Device-aware TTS codec for encoding/decoding audio."""
 
-    def __init__(self, device: str = "cuda"):
+    def __init__(self, device: str = "cuda", device_id: int = 0):
         self.device = device
+        self.device_id = device_id
         d_path = snapshot_download("YatharthS/MiraTTS")
         d_path = f"{d_path}/decoders"
-        self.audio_decoder = AudioDecoder(d_path, device=device)
-        self.audio_encoder = AudioEncoder(d_path, device=device)
+        self.audio_decoder = AudioDecoder(d_path, device=device, device_id=device_id)
+        self.audio_encoder = AudioEncoder(d_path, device=device, device_id=device_id)
 
     def encode(self, audio, encode_semantic: bool = False, duration: int = 8):
         """Encode audio file into tokens."""

@@ -113,8 +113,9 @@ class AudioTokenizer:
 class AudioDecoder:
     """Device-aware audio decoder using ONNX Runtime."""
 
-    def __init__(self, decoder_paths: str, device: str = "cuda"):
+    def __init__(self, decoder_paths: str, device: str = "cuda", device_id: int = 0):
         self.device = device
+        self.device_id = device_id
         self._torch_device = self._get_torch_device()
 
         sess_options = ort.SessionOptions()
@@ -132,7 +133,8 @@ class AudioDecoder:
         else:
             # Ensure upsampler is on CPU with float32
             self.upsampler.model = self.upsampler.model.float().cpu()
-            self.upsampler.device = torch.device("cpu")  # Fix internal device reference
+            if hasattr(self.upsampler, 'device'):
+                self.upsampler.device = torch.device("cpu")
 
     def _get_torch_device(self) -> str:
         if self.device == "cuda" and torch.cuda.is_available():
@@ -142,7 +144,7 @@ class AudioDecoder:
     def _get_providers(self):
         available = ort.get_available_providers()
         if self.device == "cuda" and "CUDAExecutionProvider" in available:
-            return [("CUDAExecutionProvider", {"device_id": 0}), "CPUExecutionProvider"]
+            return [("CUDAExecutionProvider", {"device_id": self.device_id}), "CPUExecutionProvider"]
         return ["CPUExecutionProvider"]
 
     @torch.inference_mode()

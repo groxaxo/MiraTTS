@@ -20,6 +20,7 @@ class MiraTTS:
         model_path: str = "uetuluk2/MiraTTS-onnx-int4",
         n_ctx: int = 8192,
         device: str = "cpu",
+        device_id: int = 0,
         provider: str = None,
         verbose: bool = False,
     ):
@@ -33,10 +34,12 @@ class MiraTTS:
                        - HuggingFace: "YatharthS/MiraTTS" (auto-converts on first use)
             n_ctx: Maximum context length (kept for API compatibility)
             device: Device to use ("cuda" or "cpu", default: "cpu")
+            device_id: CUDA device ID to use when device="cuda" (default: 0)
             provider: ONNX Runtime execution provider (auto-detected if None)
             verbose: Print verbose output
         """
         self.device = device
+        self.device_id = device_id
         self.n_ctx = n_ctx
         self.verbose = verbose
 
@@ -62,20 +65,28 @@ class MiraTTS:
                 provider = "CUDAExecutionProvider"
             else:
                 provider = "CPUExecutionProvider"
-                self.device = "cpu"
+                if self.device == "cuda":
+                    if self.verbose:
+                        print("Warning: CUDA requested but CUDAExecutionProvider not available. Falling back to CPU.")
+                    self.device = "cpu"
         elif provider not in available_providers:
+            if self.verbose:
+                print(f"Warning: Requested provider '{provider}' not available.")
             if "CUDAExecutionProvider" in available_providers:
                 provider = "CUDAExecutionProvider"
             else:
                 provider = "CPUExecutionProvider"
-                self.device = "cpu"
+                if self.device == "cuda":
+                    if self.verbose:
+                        print("Warning: Falling back to CPU due to unavailable CUDA provider.")
+                    self.device = "cpu"
         
         if self.verbose:
             print(f"Using provider: {provider}")
 
         provider_options = {}
         if provider == "CUDAExecutionProvider":
-            provider_options = {"device_id": 0}
+            provider_options = {"device_id": self.device_id}
 
         # Load ONNX model
         if is_local_onnx:
@@ -98,10 +109,6 @@ class MiraTTS:
                 provider_options=provider_options,
             )
 
-        # Move model to device if needed
-        if device == "cuda" and hasattr(self.llm, "to"):
-            self.llm = self.llm.to(device)
-
         # Default generation parameters (matching original llama-cpp defaults)
         self.top_p = 0.95
         self.top_k = 50
@@ -111,7 +118,7 @@ class MiraTTS:
         self.min_p = 0.05
 
         # Initialize codec with device
-        self.codec = TTSCodec(device=self.device)
+        self.codec = TTSCodec(device=self.device, device_id=self.device_id)
 
         # Cache EOS token ID
         self._eos_token_id = self.tokenizer.eos_token_id
