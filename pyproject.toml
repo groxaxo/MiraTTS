@@ -24,6 +24,8 @@ dependencies = [
     "einops",
     "onnxruntime-gpu",
     "inflect",
+    "streamlit",
+    "soundfile",
 ]
 
 [project.urls]
