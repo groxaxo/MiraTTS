@@ -5,9 +5,9 @@ This repository uses the **INT4 quantized ONNX model** ([uetuluk2/MiraTTS-onnx-i
 https://github.com/user-attachments/assets/262088ae-068a-49f2-8ad6-ab32c66dcd17
 
 ## Key benefits
-- **Optimized for efficiency**: Uses INT4 quantized ONNX model for 2x faster inference and 15x less memory
+- **Optimized for efficiency**: Uses INT4 quantized ONNX model for 2x faster inference and 15x less memory compared to the original FP32 model
 - **CPU-friendly**: Runs efficiently on CPU without requiring high-end GPU
-- High quality: Generates clear and crisp 48khz audio outputs which is much higher quality then most models.
+- High quality: Generates clear and crisp 48khz audio outputs which is much higher quality than most models.
 - Memory efficient: Works within 6gb vram (GPU) or efficiently on CPU.
 - Low latency: Latency can be low as 100ms.
 - Advanced text normalization: Automatically handles URLs, emails, phone numbers, money, units, and special characters (inspired by [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI)).

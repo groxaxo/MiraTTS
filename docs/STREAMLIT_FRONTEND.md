@@ -15,7 +15,7 @@ The MiraTTS Streamlit frontend (based on [MiraTTSstreamlit](https://github.com/A
 
 ### CPU Optimized
 - Uses INT4 quantized ONNX model for efficient CPU inference
-- 2x faster inference and 15x less memory usage
+- 2x faster inference and 15x less memory usage compared to the original FP32 model
 - Runs efficiently without requiring high-end GPU
 - Ideal for accessibility and resource-constrained environments
 

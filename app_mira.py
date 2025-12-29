@@ -131,7 +131,7 @@ with st.sidebar:
             
     with tab_new:
         up_file = st.file_uploader(
-            "Upload Audio (wav/mp3)", 
+            "Upload Audio (wav/mp3/ogg)", 
             type=['wav', 'mp3', 'ogg'],
             key=f"uploader_{st.session_state.uploader_key}"
         )
