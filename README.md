@@ -119,9 +119,37 @@ Kaggle notebook: https://www.kaggle.com/code/yatharthsharma888/miratts-training
 
 Colab notebook: https://colab.research.google.com/drive/1IprDyaMKaZrIvykMfNrxWFeuvj-DQPII?usp=sharing
 
+## Web Interface (Streamlit)
+MiraTTS now includes a user-friendly Streamlit web interface for easy voice cloning and audio generation!
+
+### Features
+- **High Fidelity:** Generates crystal clear 48kHz audio
+- **Zero-Shot Cloning:** Upload a 5-10 second reference clip to clone any voice
+- **Smart Batching:** Uses batch generation to synthesize long text rapidly (up to 100x realtime)
+- **History System:** Automatically saves and displays the last 5 generations
+- **GPU Optimized:** Caches the model in VRAM to prevent reloading on every request
+
+### Running the Web Interface
+After installing MiraTTS, you can launch the Streamlit interface:
+
+```bash
+streamlit run app_mira.py
+```
+
+Then open your browser to `http://localhost:8501` to access the interface.
+
+### First Run Note
+On the very first launch, the app will download the MiraTTS model weights (~2-3 GB) from Hugging Face. This happens automatically and may take a few minutes depending on your internet speed.
+
+### Prerequisites
+- **Hardware:** NVIDIA GPU with at least 6GB VRAM (required for Lmdeploy/FlashSR)
+- **System:** FFmpeg installed (`sudo apt install ffmpeg` on Linux)
+- **Python:** Version 3.10 or higher
+
 ## Next steps
 - [x] Release code and model
 - [x] Release training code
+- [x] Add web interface (Streamlit)
 - [ ] Support low latency streaming
 - [ ] Release native 48khz bicodec
       

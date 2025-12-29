@@ -29,6 +29,8 @@ dependencies = [
     "omegaconf>=2.3.0",
     "safetensors",
     "huggingface-hub",
+    "streamlit",
+    "soundfile",
 ]
 
 [project.urls]
