@@ -73,12 +73,13 @@ def get_history():
 def load_engine():
     """Loads the MiraTTS model. Cached to run only once."""
     cleanup_on_launch()
-    print("Loading MiraTTS Model...")
-    model = MiraTTS('YatharthS/MiraTTS')
+    print("Loading MiraTTS Model (INT4 ONNX for CPU optimization)...")
+    # Uses default ONNX INT4 model (uetuluk2/MiraTTS-onnx-int4) for efficient CPU inference
+    model = MiraTTS()
     return model
 
 try:
-    with st.spinner("Loading MiraTTS Engine (48kHz)..."):
+    with st.spinner("Loading MiraTTS Engine (INT4 ONNX - CPU Optimized)..."):
         tts_engine = load_engine()
 except Exception as e:
     st.error(f"Failed to load engine: {e}")
@@ -99,7 +100,13 @@ def save_reference(uploaded_file):
 # --- UI ---
 
 st.set_page_config(page_title="MiraTTS Studio", page_icon="🎵", layout="wide")
-st.title("🎵 MiraTTS Studio")
+
+# Display banner
+banner_path = "./static/miratts_banner.png"
+if os.path.exists(banner_path):
+    st.image(banner_path, use_container_width=True)
+else:
+    st.title("🎵 MiraTTS Studio")
 
 # Initialize session state for uploader reset
 if "uploader_key" not in st.session_state:
@@ -124,7 +131,7 @@ with st.sidebar:
             
     with tab_new:
         up_file = st.file_uploader(
-            "Upload Audio (wav/mp3)", 
+            "Upload Audio (wav/mp3/ogg)", 
             type=['wav', 'mp3', 'ogg'],
             key=f"uploader_{st.session_state.uploader_key}"
         )
@@ -134,13 +141,34 @@ with st.sidebar:
             st.session_state.uploader_key += 1
             time.sleep(1)
             st.rerun()
+    
+    st.divider()
+    
+    # Attribution section
+    st.header("Credits & Attribution")
+    st.markdown("""
+    **MiraTTS** - CPU-Optimized Voice Cloning
+    
+    🙏 **Special Thanks:**
+    - **[Yatharth Sharma](https://github.com/ysharma3501)** - Original MiraTTS creator
+    - **[ArtificialAnaleptic](https://github.com/ArtificialAnaleptic)** - Streamlit frontend
+    - **Spark-TTS Team** - Base model
+    - **[uetuluk2](https://huggingface.co/uetuluk2)** - INT4 ONNX optimization
+    
+    📦 **This Version:**
+    - Optimized for CPU inference
+    - Uses INT4 quantized ONNX model
+    - Enhanced for accessibility
+    
+    ⭐ [Star on GitHub](https://github.com/groxaxo/MiraTTS)
+    """)
 
 # Main Layout
 col_main, col_hist = st.columns([0.65, 0.35])
 
 with col_main:
     st.subheader("Input Text")
-    user_text = st.text_area("Type here...", height=180, placeholder="Hello! This is the new high-quality engine.")
+    user_text = st.text_area("Type here...", height=180, placeholder="Try me out! I'm optimized to run efficiently on CPU with high-quality 48kHz audio output.")
     
     if st.button("Generate Audio", type="primary", use_container_width=True):
         if not user_text or not selected_ref_path:

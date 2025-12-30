@@ -13,6 +13,12 @@ The MiraTTS Streamlit frontend (based on [MiraTTSstreamlit](https://github.com/A
 
 ## Features
 
+### CPU Optimized
+- Uses INT4 quantized ONNX model for efficient CPU inference
+- 2x faster inference and 15x less memory usage compared to the original FP32 model
+- Runs efficiently without requiring high-end GPU
+- Ideal for accessibility and resource-constrained environments
+
 ### High Fidelity Audio
 - Generates crystal clear 48kHz audio output
 - Uses FlashSR for audio super-resolution
@@ -34,21 +40,23 @@ The MiraTTS Streamlit frontend (based on [MiraTTSstreamlit](https://github.com/A
 - Easy playback and review of previous generations
 
 ### GPU Optimization
-- Caches model in VRAM for fast generation
+- Caches model in VRAM for fast generation (when GPU is available)
+- Also runs efficiently on CPU with ONNX Runtime
 - Prevents model reloading on every request
 - Efficient memory management
 
 ## Prerequisites
 
 ### Hardware Requirements
-- **GPU**: NVIDIA GPU with at least 6GB VRAM
-- **RAM**: 8GB+ recommended
-- **Storage**: ~5GB for model weights and cache
+- **CPU**: Any modern CPU (optimized for CPU inference with INT4 ONNX)
+- **GPU**: Optional - NVIDIA GPU with 6GB+ VRAM for faster processing
+- **RAM**: 4GB+ recommended (8GB+ for optimal performance)
+- **Storage**: ~3GB for INT4 ONNX model weights and cache
 
 ### Software Requirements
 - **Python**: 3.10 or higher (3.12 recommended)
 - **FFmpeg**: Required for audio processing
-- **CUDA**: Compatible NVIDIA drivers
+- **CUDA**: Optional - for GPU acceleration (not required for CPU mode)
 
 ## Installation
 
@@ -91,11 +99,11 @@ The application will start and display a URL (typically `http://localhost:8501`)
 ### First Launch
 
 On the first run, MiraTTS will:
-1. Download model weights (~2-3 GB) from Hugging Face
-2. Initialize the LMDeploy engine
+1. Download INT4 ONNX model weights (~1-2 GB) from Hugging Face
+2. Initialize the ONNX Runtime engine
 3. Set up the audio codec
 
-This process may take 5-10 minutes depending on your internet speed. Watch the terminal for progress.
+This process may take 3-5 minutes depending on your internet speed. The INT4 quantized model is significantly smaller than the original model. Watch the terminal for progress.
 
 ### Using the Interface
 
@@ -155,23 +163,24 @@ SAMPLE_RATE = 48000                              # Audio sample rate (48kHz)
 
 ### Model Parameters
 
-To adjust generation parameters, modify the MiraTTS initialization in `app_mira.py`:
+To use a different model or adjust initialization in `app_mira.py`:
 
 ```python
+# Default: INT4 ONNX model (CPU optimized)
+model = MiraTTS()
+
+# Or use the original FP32 model
 model = MiraTTS('YatharthS/MiraTTS')
-model.set_params(
-    top_p=0.95,
-    top_k=50,
-    temperature=0.8,
-    max_new_tokens=1024,
-    repetition_penalty=1.2,
-    min_p=0.05
-)
+
+# Or use GPU acceleration with ONNX
+model = MiraTTS(device='cuda')
 ```
 
 ## Troubleshooting
 
-### GPU Not Detected
+### GPU Not Detected (Optional)
+
+**Note:** GPU is optional - the app runs efficiently on CPU with the INT4 ONNX model.
 
 **Linux:**
 ```bash
@@ -179,7 +188,7 @@ nvidia-smi  # Check if GPU is visible
 ```
 
 **Windows:**
-If PyTorch doesn't detect your GPU, install the CUDA-specific version:
+If you want to use GPU and PyTorch doesn't detect it, install the CUDA-specific version:
 ```bash
 pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
@@ -189,16 +198,16 @@ pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu121
 If the Hugging Face download fails:
 1. Check your internet connection
 2. Try using a VPN if region-blocked
-3. Manually download from [YatharthS/MiraTTS](https://huggingface.co/YatharthS/MiraTTS)
+3. Manually download from [uetuluk2/MiraTTS-onnx-int4](https://huggingface.co/uetuluk2/MiraTTS-onnx-int4)
 4. Point to local model: `MiraTTS('/path/to/local/model')`
 
 ### Out of Memory Errors
 
-If you get CUDA OOM errors:
+If you get OOM errors (rare with CPU mode):
 1. Reduce batch size by limiting text length
-2. Clear VRAM: restart the application
-3. Close other GPU-intensive applications
-4. Consider using a GPU with more VRAM
+2. If using GPU: clear VRAM by restarting the application
+3. Close other memory-intensive applications
+4. The INT4 ONNX model uses significantly less memory than the full model
 
 ### Audio Quality Issues
 
@@ -263,8 +272,11 @@ You can use MiraTTS programmatically without the web interface:
 ```python
 from mira.model import MiraTTS
 
-# Initialize
-mira = MiraTTS('YatharthS/MiraTTS')
+# Initialize with default INT4 ONNX model (CPU optimized)
+mira = MiraTTS()
+
+# Or use GPU
+# mira = MiraTTS(device='cuda')
 
 # Encode reference
 context = mira.encode_audio('reference.wav')
@@ -280,10 +292,11 @@ audio = mira.batch_generate(texts, contexts)
 
 ## Credits
 
-- **MiraTTS**: [Yatharth Sharma](https://github.com/ysharma3501)
+- **MiraTTS**: [Yatharth Sharma](https://github.com/ysharma3501) - Original creator
 - **Streamlit Frontend**: [ArtificialAnaleptic](https://github.com/ArtificialAnaleptic/MiraTTSstreamlit)
-- **Base Model**: Spark-TTS
-- **Optimization**: LMDeploy, FlashSR
+- **Base Model**: Spark-TTS Team
+- **INT4 ONNX Optimization**: [uetuluk2](https://huggingface.co/uetuluk2)
+- **This Fork**: [groxaxo/MiraTTS](https://github.com/groxaxo/MiraTTS) - CPU-optimized version
 
 ## License
 
